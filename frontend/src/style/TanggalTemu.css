@@ -1,0 +1,14 @@
+.selected {
+  background-color: #ffc06f;
+  color: white;
+}
+
+.not-selected {
+  background-color: white;
+  color: black;
+}
+
+.not-selected:hover {
+  background-color: #ffc06f;
+  color: white;
+}
