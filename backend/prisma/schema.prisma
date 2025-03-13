@@ -1,0 +1,121 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id_user  String  @id @default(uuid()) @db.VarChar(255)
+  email    String  @unique @db.VarChar(255)
+  password String  @db.VarChar(255)
+  username String  @db.VarChar(255)
+  token    String? @db.VarChar(255)
+  role     String  @db.VarChar(255)
+
+  pelanggan Pelanggan?
+  dokter    Dokter?
+
+  @@map("user")
+}
+
+model Hewan {
+  id_hewan    String @id @default(uuid()) @db.VarChar(255)
+  id_pemilik  String @default(uuid()) @db.VarChar(255)
+  nama        String @db.VarChar(255)
+  jenis_hewan String @db.VarChar(255)
+
+  pelanggan Pelanggan @relation(fields: [id_pemilik], references: [id_pelanggan], onDelete: Cascade)
+
+  jadwal_temu Jadwal_temu[]
+
+  @@map("hewan")
+}
+
+model Praktek {
+  id_praktek   String  @id @default(uuid()) @db.VarChar(255)
+  id_dokter    String  @default(uuid()) @db.VarChar(255)
+  harga        Int     @db.Int
+  harga_promo  Int?    @db.Int
+  spesialis    String  @db.VarChar(255)
+  jadwal_waktu String  @db.VarChar(255)
+  promo        Boolean @default(false)
+
+  dokter Dokter @relation(fields: [id_dokter], references: [id_dokter], onDelete: Cascade)
+
+  jadwal_temu Jadwal_temu[]
+
+  @@map("praktek")
+}
+
+model Metode_pembayaran {
+  id_metode_pembayaran String        @id @default(uuid()) @db.VarChar(255)
+  nama                 String        @db.VarChar(255)
+  pajak                Int           @db.Int
+  Jadwal_temu          Jadwal_temu[]
+
+  @@map("metode_pembayaran")
+}
+
+model Jadwal_temu {
+  id_temu                 String  @id @default(uuid()) @db.VarChar(255)
+  id_praktek              String  @default(uuid()) @db.VarChar(255)
+  id_hewan                String  @default(uuid()) @db.VarChar(255)
+  id_dokter               String  @default(uuid()) @db.VarChar(255)
+  id_pelanggan            String  @default(uuid()) @db.VarChar(255)
+  id_metode_pembayaran    String  @default(uuid()) @db.VarChar(255)
+  status String? @db.VarChar(255)
+  waktu_dipilih_pelanggan String? @db.VarChar(255)
+  total_harga             Int? @db.Int
+
+  praktek           Praktek           @relation(fields: [id_praktek], references: [id_praktek], onDelete: Cascade)
+  hewan             Hewan             @relation(fields: [id_hewan], references: [id_hewan], onDelete: Cascade)
+  dokter            Dokter            @relation(fields: [id_dokter], references: [id_dokter], onDelete: Cascade)
+  pelanggan         Pelanggan         @relation(fields: [id_pelanggan], references: [id_pelanggan], onDelete: Cascade)
+  metode_pembayaran Metode_pembayaran @relation(fields: [id_metode_pembayaran], references: [id_metode_pembayaran], onDelete: Cascade)
+  Rekam_medis       Rekam_medis[]
+
+  @@map("jadwal_temu")
+}
+
+model Pelanggan {
+  id_pelanggan String  @id @unique @default(uuid()) @db.VarChar(255)
+  kontak       String? @db.VarChar(255)
+  alamat       String? @db.VarChar(255)
+  url_photo    String? @default("https://static.vecteezy.com/system/resources/thumbnails/008/442/086/small_2x/illustration-of-human-icon-user-symbol-icon-modern-design-on-blank-background-free-vector.jpg") @db.VarChar(255)
+
+  user User @relation(fields: [id_pelanggan], references: [id_user], onDelete: Cascade)
+
+  hewan       Hewan[]
+  jadwal_temu Jadwal_temu[]
+
+  @@map("pelanggan")
+}
+
+model Dokter {
+  id_dokter   String  @id @unique @default(uuid()) @db.VarChar(255)
+  kontak      String? @db.VarChar(255)
+  pengalaman  Int?
+  alamat      String? @db.VarChar(255)
+  nama_klinik String? @db.VarChar(255)
+  url_photo   String? @default("https://png.pngtree.com/png-vector/20190507/ourmid/pngtree-vector-doctor-icon-png-image_1024938.jpg")
+
+  user User @relation(fields: [id_dokter], references: [id_user], onDelete: Cascade)
+
+  jadwal_temu Jadwal_temu[]
+  praktek     Praktek[]
+
+  @@map("dokter")
+}
+
+
+model Rekam_medis {
+  id_temu     String      @unique @default(uuid()) @db.VarChar(255)
+  komentar    String?     @db.VarChar(255)
+  rating      Int?        @db.Int
+  tanggal_komentar String? @db.VarChar(225)
+  catatan_pasien String? @db.VarChar(225)
+  jadwal_temu Jadwal_temu @relation(fields: [id_temu], references: [id_temu], onDelete: Cascade)
+}
